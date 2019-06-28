@@ -1,0 +1,25 @@
+version: '3.1'
+
+services:
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: test-PROJECT_NAME
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: composePASSWORD
+    ports:
+      - "5431:5432"
+
+  web:
+    build: .
+    command: bash -c "npm run migration-up; npm run start"
+    volumes:
+      - .:/opt/PROJECT_NAME
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    environment:
+      DATABASE_URL: postgresql://user:composePASSWORD@postgres/test-PROJECT_NAME
+      NODE_ENV: development
