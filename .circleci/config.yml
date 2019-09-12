@@ -45,7 +45,7 @@ jobs:
           name: Save Docker image layer cache
           command: |
             mkdir -p /caches
-            docker save -o /caches/app.tar company/PROJECT_NAME
+            docker save -o /caches/app.tar COMPANY/PROJECT_NAME
       - save_cache:
           key: v1-{{ .Branch }}-{{ epoch }}
           paths:

@@ -1,7 +1,7 @@
 .PHONY: package push tag help default
 
 GIT_COMMIT := $(shell git rev-parse --short HEAD)
-IMAGE_NAME := "company/PROJECT_NAME"
+IMAGE_NAME := "COMPANY/PROJECT_NAME"
 
 default: package
 
