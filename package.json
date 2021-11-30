@@ -5,7 +5,7 @@
     "body-parser": "^1.18.3",
     "cookie-parser": "^1.4.6",
     "db-migrate": "^0.11.13",
-    "db-migrate-pg": "^0.4.0",
+    "db-migrate-pg": "^1.2.2",
     "express": "^4.16.2",
     "express-handlebars": "^3.1.0",
     "express-promise-router": "^3.0.3",
