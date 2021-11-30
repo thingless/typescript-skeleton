@@ -83,7 +83,7 @@ export async function lightWeightWorkers<T, R>(
             try {
                 const result = await worker(task)
                 ret.push({ task, result })
-            } catch (error) {
+            } catch (error:any) {
                 if (!lodash.isError(error)) error = new Error(error && error.toString && error.toString() || "unknown error")
                 if (errorHandler) await errorHandler(task, error)
                 ret.push({ error, task })
