@@ -2,7 +2,7 @@ version: '3.1'
 
 services:
   postgres:
-    image: postgres
+    image: postgres:14.1-bullseye
     restart: always
     environment:
       POSTGRES_DB: test-PROJECT_NAME
