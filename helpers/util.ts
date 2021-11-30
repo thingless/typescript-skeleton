@@ -66,30 +66,3 @@ export function requestPromise(options: rp.UrlOptions & rp.CoreOptions): Promise
         })
     })
 }
-
-/** A utility function to run a bunch of "workers" in parallel */
-export async function lightWeightWorkers<T, R>(
-    numberOfWorkers: number,
-    tasks: T[],
-    worker: (task: T) => R | Promise<R>,
-    errorHandler?: (task: T, error: Error) => void | Promise<void>
-): Promise<Array<{ task: T, result?: R, error?: Error }>> {
-    tasks = tasks.slice(0) //copy so we don't modify original
-    const ret: Array<{ task: T, result?: R, error?: Error }> = []
-    const promises = lodash.range(numberOfWorkers).map(async () => {
-        let task: T | undefined
-        while (tasks.length) {
-            task = tasks.pop() as T //length above means cant be undefined
-            try {
-                const result = await worker(task)
-                ret.push({ task, result })
-            } catch (error:any) {
-                if (!lodash.isError(error)) error = new Error(error && error.toString && error.toString() || "unknown error")
-                if (errorHandler) await errorHandler(task, error)
-                ret.push({ error, task })
-            }
-        }
-    })
-    await Promise.all(promises)
-    return ret
-}
