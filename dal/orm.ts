@@ -1,9 +1,11 @@
-import { Pool, types, FieldDef } from 'pg';
-import * as moment from 'moment';
-import { initLogger } from '../helpers/logger';
-import { HttpError } from '../helpers/util'
-const logger = initLogger(__filename);
-types.setTypeParser(1114, (x) => moment.utc(x).toISOString()); //fix timestamp parsing
+import pg from 'pg';
+import type { Pool } from 'pg'
+import moment from 'moment';
+import { HttpError } from '../helpers/util.js'
+import { initLogger } from '../helpers/logger.js';
+import { fileURLToPath } from 'url'
+const logger = initLogger(fileURLToPath(import.meta.url));
+pg.types.setTypeParser(1114, (x: any) => moment.utc(x).toISOString()); //fix timestamp parsing
 
 export type Filters<T extends { [key: string]: any }> = [keyof T, string][]
 export type Columns<T extends { [key: string]: any }> = Array<keyof T>
@@ -53,15 +55,15 @@ export function buildFilterSQL<T extends { [key: string]: any }>(
   } else if (filters.find((expr) => !FILTER_VALUE_REGEX.test(expr[1]))) {
     throw new HttpError(400, 'invalid filter value');
   } else if (!filters.length) {
-    return {sql: ' TRUE ', vals:[]}
+    return { sql: ' TRUE ', vals: [] }
   }
 
   let sql = ' true ';
   const vals: Array<string> = [];
   filters.forEach(([name, value], index) => {
     const [_, op, val] = Array.from(FILTER_VALUE_REGEX.exec(value) as any);
-    vals.push(val);
-    sql += ` AND ${name} ${opToSql(op)} $${index + 1} `;
+    vals.push(val as any);
+    sql += ` AND ${name as any} ${opToSql(op as any)} $${index + 1} `;
   });
   return { sql: sql, vals: vals };
 }
@@ -84,7 +86,7 @@ export async function upsert<T extends { [key: string]: any, id: string }>(table
   INSERT INTO ${tableName} (${columns.join(',')})
   VALUES(${columns.map((x, i) => '$' + (i + 1)).join(',')})
   ON CONFLICT(id) DO UPDATE SET
-  ${columns.map((f, i) => `${f}=$${i + 1}`).join(',')}
+  ${columns.map((f, i) => `${f as any}=$${i + 1}`).join(',')}
   ; `;
   await pool.query(sql, columns.map((f) => (data as any)[f]));
 }
@@ -93,7 +95,7 @@ export async function update<T extends { [key: string]: any, id: string }>(table
   columns = columns.filter((f) => typeof (data as any)[f] !== 'undefined');
   const sql = `
   UPDATE ${tableName} SET
-  ${columns.map((f, i) => `${f}=$${i + 2}`).join(',')}
+  ${columns.map((f, i) => `${f as any}=$${i + 2}`).join(',')}
   WHERE id=$1;`;
   await pool.query(sql, [data.id].concat(columns.map((f) => (data as any)[f])));
 }
@@ -104,6 +106,6 @@ export async function get<T extends { [key: string]: any, id: string }>(tableNam
 
 export let pool: Pool;
 export function connect(connectionString: string) {
-  pool = new Pool({ connectionString: connectionString });
+  pool = new pg.Pool({ connectionString: connectionString });
   return pool;
 }

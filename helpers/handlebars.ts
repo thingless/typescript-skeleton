@@ -1,7 +1,7 @@
-import { isUndefined } from 'lodash';
+import lodash from 'lodash';
 
 export function json(first: any) { return JSON.stringify(first) }
-export function encodeURI(first: any): string { return encodeURI(isUndefined(first) ? "" : encodeURI(first)) }
+export function encodeURI(first: any): string { return encodeURI(lodash.isUndefined(first) ? "" : encodeURI(first)) }
 export function add() {
     var args = Array.from(arguments).splice(0, arguments.length - 1)
     return args.reduce((p, c) => p + c, typeof (args[0]) === "number" ? 0 : "")

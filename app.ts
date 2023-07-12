@@ -1,16 +1,21 @@
-import * as express from 'express';
-import * as bodyParser from 'body-parser';
-import * as handlers from './handlers/handlers';
-import * as dal from './dal/dal';
-import * as orm from './dal/orm'
-import { uuidv4 } from './helpers/util';
-import * as auth from './helpers/auth'
+import express from 'express';
+import bodyParser from 'body-parser';
+import * as handlers from './handlers/handlers.js';
+import * as dal from './dal/dal.js';
+import * as orm from './dal/orm.js'
+import { uuidv4 } from './helpers/util.js';
+import * as auth from './helpers/auth.js'
 import * as exphbs from 'express-handlebars';
-import * as cookieParser from 'cookie-parser';
-import * as handlebarHelpers from './helpers/handlebars'
+import cookieParser from 'cookie-parser';
+import * as handlebarHelpers from './helpers/handlebars.js'
+import { registerWorkers } from './workers/register.js'
+import * as workers from './workers/utils.js'
+import expressPromiseRouter from 'express-promise-router'
+import * as assert from 'assert'
 
-import { initLogger } from './helpers/logger';
-const logger = initLogger(__filename);
+import { initLogger } from './helpers/logger.js';
+import { fileURLToPath } from 'url'
+const logger = initLogger(fileURLToPath(import.meta.url));
 
 export const app = express();
 app.enable('trust proxy')
@@ -28,7 +33,7 @@ app.use(function addUser(req, res, next) {
     next()
 })
 
-export const router = require('express-promise-router')() as express.Router;
+const router = expressPromiseRouter() as express.Router;
 app.use('', router);
 router.get('/_health', handlers.health);
 router.get('/hello', auth.userAuth, handlers.hello) //example
@@ -63,16 +68,30 @@ if (app.get('env') === 'testing') {
 const PORT = process.env.WEB_PORT || 3000;
 async function main() {
     const server = app.listen(PORT, async function mainApp() {
-        if (!process.env.DATABASE_URL) {
-            throw new Error('Must provide DATABASE_URL as env var');
-        }
+        assert.ok(process.env.DATABASE_URL, 'must provide DATABASE_URL as env var')
+        assert.ok(process.env.RABBIT_URL, 'must provide RABBIT_URL as env var')
         try {
             logger.info(`Connecting to postgres at ${process.env.DATABASE_URL}...`);
             orm.connect(process.env.DATABASE_URL);
+            await orm.pool.query('SELECT 1;'); //make sure connection works
             logger.info('Connected to postgres');
         } catch (err) {
             logger.error('webserver listen error', err);
             throw err;
+        }
+        try {
+            registerWorkers()
+            logger.info(`Connecting to rabbitmq...`)
+            await workers.connect(process.env.RABBIT_URL)
+            logger.info('Connected to rabbitmq')
+        } catch (err) {
+            logger.error('Error connecting to rabbitmq', err);
+            throw err;
+        }
+        if (!process.env.DISABLE_WORKERS) {
+            logger.info('Starting rabbit workers...');
+            await workers.startWorkers()
+            logger.info('Rabbit workerss started');
         }
         logger.info(`Listening on port ${PORT}...`);
     });
@@ -86,6 +105,4 @@ async function main() {
     });
 }
 
-if (require.main === module) {
-    main();
-}
+main();

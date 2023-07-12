@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "target": "es2021",
+    "module":"ESNext",
     "outDir": "./dist",
     "rootDir": ".",
-    "module": "commonjs",
     "baseUrl": ".",
     "moduleResolution": "node",
     "strict": true,
@@ -12,9 +12,11 @@
     "inlineSources": true,
     "types": ["node", "mocha"],
     "noImplicitAny": true,
+    "allowSyntheticDefaultImports": true,
     "lib": [
       "dom",
       "es2021"
-    ]
+    ],
+    "experimentalDecorators": true
   },
 }

@@ -10,16 +10,30 @@ services:
       POSTGRES_PASSWORD: composePASSWORD
     ports:
       - "5431:5432"
-
-  web:
-    build: .
-    command: bash -c "npm run migration-up; npm run start"
     volumes:
-      - .:/opt/PROJECT_NAME
-    ports:
-      - "3000:3000"
-    depends_on:
-      - postgres
+      - pgdata:/var/lib/postgresql/data
+  
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    restart: always
     environment:
-      DATABASE_URL: postgresql://user:composePASSWORD@postgres/test-PROJECT_NAME
-      NODE_ENV: development
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: user
+    ports:
+      - 5672:5672
+      - 15672:15672
+  # web:
+  #   build: .
+  #   command: bash -c "npm run migration-up; npm run start"
+  #   volumes:
+  #     - .:/opt/PROJECT_NAME
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - postgres
+  #   environment:
+  #     DATABASE_URL: postgresql://user:composePASSWORD@postgres/test-PROJECT_NAME
+  #     NODE_ENV: development
+
+volumes: 
+  pgdata:

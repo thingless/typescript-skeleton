@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import * as dal from '../dal/dal'
-import { HttpError } from '../helpers/util'
+import * as dal from '../dal/dal.js'
+import { HttpError } from '../helpers/util.js'
 
 const BASIC_AUTH_USERS: { [user: string]: string; } = {
     'admin': 'XXX:this-must-be-a-secret',
@@ -38,6 +38,7 @@ export async function userAuth(req: Request, res: Response, next: () => void) {
       return next()
     }
     //if the current user is an admin then allow the request... aka impersonation
+    console.log(user)
     if (user && user.is_admin && req.params.uid) {
       if (!(await dal.getUser(req.params.uid))) throw new HttpError(404, "could not find user")
       req.uid = req.params.uid

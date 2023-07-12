@@ -1,4 +1,4 @@
-import * as orm from '../dal/orm'
+import * as orm from '../dal/orm.js'
 afterEach(() => {
 
 });
