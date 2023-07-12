@@ -22,6 +22,7 @@ PROJECT_NAME
 2. Run `npm install`
 3. Run `npm run build`
 4. Run `docker-compose up`
+5. Run `npm run dev`
 
 ## Tasks
 
@@ -31,12 +32,7 @@ All the commands below are for local development and assume you have ran `docker
 
 Run `npm run build_and_test`
 
-Note: this command does not rely on the web container as the tests run outside the container. It does depend on the `test-PROJECT_NAME` DB
-
-### Build and restart web
-
-Run `npm run build_and_restart`
-
+Note: Depends on the `test-PROJECT_NAME` DB
 
 ### Creating a migration
 

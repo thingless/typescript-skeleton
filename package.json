@@ -48,7 +48,6 @@
     "test": "NODE_ENV=testing ./node_modules/.bin/mocha --full-trace \"dist/tests/test-setup.js\" \"dist/tests/**/test-*.js\" --exit --",
     "build_and_test": "npm run build && npm run test",
     "start": "node dist/app.js",
-    "build_and_restart": "npm run build && docker-compose restart -t 5 web",
     "migration-status": "./node_modules/.bin/db-migrate check",
     "migration-up": "./node_modules/.bin/db-migrate up"
   }
